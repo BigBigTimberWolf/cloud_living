@@ -1,0 +1,9 @@
+version: "3.3"
+
+services:
+  server-living:
+    image: registry.cn-hangzhou.aliyuncs.com/kichina/server-living:${SERVER_VERSION}
+    ports:
+      - "8888:8888"
+    env_file:
+      - .env
