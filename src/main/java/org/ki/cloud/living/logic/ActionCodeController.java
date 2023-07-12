@@ -25,13 +25,19 @@ public class ActionCodeController {
 
         return actionCodeDao.findByDeviceSignatureCode(deviceSignatureCode)
                 .defaultIfEmpty(new TActionCode())
-                .flatMap(a -> actionCodeDao.countByDeviceSignatureCode().flatMap(i->{
-                    if (i!=0){
-                        return actionCodeDao.registerDevice(deviceSignatureCode, project)
-                                .then(Mono.defer(() -> actionCodeDao.findByDeviceSignatureCode(deviceSignatureCode)));
+                .flatMap(a -> {
+                    if (a.getDeviceName()==null){
+                        return actionCodeDao.countByDeviceSignatureCode().flatMap(i->{
+                            if (i!=0){
+                                return actionCodeDao.registerDevice(deviceSignatureCode, project)
+                                        .then(Mono.defer(() -> actionCodeDao.findByDeviceSignatureCode(deviceSignatureCode)));
+                            }
+                            return Mono.empty();
+                        }).switchIfEmpty(Mono.defer(()->Mono.just(a)));
+                    }else {
+                        return actionCodeDao.findByDeviceSignatureCode(deviceSignatureCode);
                     }
-                    return Mono.empty();
-                }).switchIfEmpty(Mono.defer(()->Mono.just(a))))
+                })
                 .map(ss -> {
                     Result<RegisterResponseModel> registerResponseModelResult = new Result<>();
                     if (ss.getDeviceSignatureCode()==null){
