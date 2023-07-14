@@ -11,14 +11,14 @@ import reactor.core.publisher.Mono;
 public interface ActionCodeDao extends ReactiveCrudRepository<TActionCode,Long> {
 
 
-    @Query("UPDATE t_action_code SET device_signature_code = :deviceSignatureCode WHERE device_signature_code IS NULL and project_id = :projectId LIMIT 1")
+    @Query("UPDATE t_action_code SET device_signature_code = :deviceSignatureCode WHERE device_signature_code = '' and project_id = :projectId LIMIT 1")
     public Mono<Void> registerDevice(@Param("deviceSignatureCode") String deviceSignatureCode, @Param("projectId")String projectId);
 
 
     @Query("SELECT  * from t_action_code where device_signature_code = :deviceSignatureCode ")
     public Mono<TActionCode> findByDeviceSignatureCode(@Param("deviceSignatureCode") String deviceSignatureCode);
 
-    @Query("SELECT COUNT(*) AS count FROM t_action_code WHERE device_signature_code IS NULL")
+    @Query("SELECT COUNT(*) AS count FROM t_action_code WHERE device_signature_code =''")
     public Mono<Integer> countByDeviceSignatureCode();
 
 }
